@@ -1,18 +1,26 @@
 import redis
 import os
 
-#r = redis.Redis(
-#    host=os.getenv("REDIS_HOST"),
-#    port=os.getenv("REDIS_PORT"),
-#    decode_responses=True
-#)
-
 r = redis.from_url(os.getenv("REDIS_URL"), decode_responses=True)
 
-def get_cached_response(prompt):
+# --- FUNCIONES PARA EL VOCABULARIO (Usa Redis Hashes) ---
 
-    return r.get(prompt)
+def add_vocabulary(word, definition):
+    """Guarda una palabra y su significado en un Hash de Redis llamado 'user_vocab'"""
+    r.hset("user_vocab", word, definition)
 
-def set_cached_response(prompt, response):
+def get_vocabulary():
+    """Retorna todo el diccionario guardado por el usuario"""
+    return r.hgetall("user_vocab")
 
-    r.set(prompt, response, ex=3600)
+
+# --- FUNCIONES PARA LOS ERRORES (Usa Redis Strings como contadores) ---
+
+def increment_error_count():
+    """Incrementa en 1 el contador de errores del usuario"""
+    r.incr("user_errors")
+
+def get_error_count():
+    """Obtiene el número total de errores registrados"""
+    count = r.get("user_errors")
+    return int(count) if count else 0
