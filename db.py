@@ -5,13 +5,38 @@ import os
 
 engine = create_engine(os.getenv("DATABASE_URL"))
 
+def init_db():
+
+    with engine.connect() as conn:
+
+        conn.execute(text("""
+
+            CREATE TABLE IF NOT EXISTS chat_history (
+
+                id SERIAL PRIMARY KEY,
+
+                role VARCHAR(20),
+
+                message TEXT,
+
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+
+            )
+
+        """))
+
+        conn.commit()
+
 def save_message(role, message):
 
     with engine.connect() as conn:
 
         conn.execute(
             text(
-                "INSERT INTO chat_history (role, message) VALUES (:role, :message)"
+                """
+                INSERT INTO chat_history (role, message)
+                VALUES (:role, :message)
+                """
             ),
             {
                 "role": role,
