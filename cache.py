@@ -1,11 +1,13 @@
 import redis
 import os
 
-r = redis.Redis(
-    host=os.getenv("REDIS_HOST"),
-    port=os.getenv("REDIS_PORT"),
-    decode_responses=True
-)
+#r = redis.Redis(
+#    host=os.getenv("REDIS_HOST"),
+#    port=os.getenv("REDIS_PORT"),
+#    decode_responses=True
+#)
+
+r = redis.from_url(os.getenv("REDIS_URL"))
 
 def get_cached_response(prompt):
 
